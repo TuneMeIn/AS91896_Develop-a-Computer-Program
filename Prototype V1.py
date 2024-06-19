@@ -29,10 +29,10 @@ def print_customer_details():
 # Check the inputs are all valid
 def check_inputs():
     input_check = 0
-    Label(main_window, text="               ").grid(column=2, row=0)
-    Label(main_window, text="               ").grid(column=2, row=1)
-    Label(main_window, text="               ").grid(column=2, row=2)
-    Label(main_window, text="               ").grid(column=2, row=3)
+    Label(main_window, text="                    ").grid(column=2, row=0)
+    Label(main_window, text="                    ").grid(column=2, row=1)
+    Label(main_window, text="                    ").grid(column=2, row=2)
+    Label(main_window, text="                    ").grid(column=2, row=3)
     
     # Check that name is not blank, set error text if blank
     if len(customer_name.get()) == 0:
@@ -49,8 +49,8 @@ def check_inputs():
         Label(main_window, fg="red", text="Required").grid(column=2, row=3)
         input_check = 1
     elif amount_hired.get().isdigit():
-        if int(amount_hired.get()) <= 0:
-            Label(main_window, fg="red", text="Above 0 only").grid(column=2, row=3)
+        if int(amount_hired.get()) <= 0 or int(amount_hired.get()) > 500:
+            Label(main_window, fg="red", text="Above 0 or 500 max").grid(column=2, row=3)
             input_check = 1
 
     if input_check == 0:
@@ -105,11 +105,13 @@ def main():
     # Start the GUI
     setup_buttons()
     main_window.mainloop()
+    
 
 # Create empty list for customer details and empty variable for entries in the list
 counters = {'total_entries': 1, 'name_count': 0}
 customer_details = []
 main_window = Tk()
+main_window.title("Julie's Party Hire Store")
 customer_name = Entry(main_window)
 customer_name.grid(column=1, row=1)
 item_hired = Entry(main_window)
