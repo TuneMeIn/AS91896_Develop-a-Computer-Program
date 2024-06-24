@@ -1,4 +1,3 @@
-# Import tkinter to create a GUI
 from tkinter import *
 
 # Quit subroutine
@@ -81,6 +80,10 @@ def delete_receipt():
 
 # Create the buttons and labels
 def setup_buttons():
+
+    # Button Image Setup
+    main_window.button_image_1 = PhotoImage(file="Images\Delete_Icon.png")
+
     # Create all the empty and default labels, buttons, and entry boxes. Put them in the correct grid location
     Label(main_window, text="Receipt Number").grid(column=0, row=0, sticky=E, padx=5, pady=5)
     Label(main_window, text="Customer Name").grid(column=0, row=1, sticky=E, padx=5, pady=5)
@@ -91,7 +94,13 @@ def setup_buttons():
     Label(main_window, text="Item Hired").grid(column=0, row=2, sticky=E, padx=5, pady=5)
     Label(main_window, text="Amount Hired").grid(column=0, row=3, sticky=E, padx=5, pady=5)
     Label(main_window, text="Receipt No.").grid(column=3, row=2, sticky=EW, padx=5, pady=5)
-    Button(main_window, text="Delete Receipt", command=delete_receipt, width=12).grid(column=3, row=4, sticky=EW, padx=5, pady=5)
+    
+    # Create a frame for the image button
+    img_frame = Frame(main_window)
+    img_frame.grid(column=3, row=4, sticky=EW, padx=5, pady=5)
+    Img_Button = Button(img_frame, text="Delete Receipt", command=delete_receipt, width=80, image=main_window.button_image_1)
+    Img_Button.pack()
+
     Label(main_window, text="               ").grid(column=2, row=0)
 
     # Set column width globally for columns 0-3
@@ -105,7 +114,12 @@ def main():
     # Start the GUI
     setup_buttons()
     main_window.mainloop()
-    
+    # Add image file 
+    bg = PhotoImage(file = "Your_image.png") 
+  
+    # Show image using label 
+    label1 = Label( main_window, image = bg) 
+    label1.place(x = 0, y = 0)
 
 # Create empty list for customer details and empty variable for entries in the list
 counters = {'total_entries': 1, 'name_count': 0}
