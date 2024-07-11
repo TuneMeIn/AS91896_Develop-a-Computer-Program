@@ -115,11 +115,11 @@ def main():
     setup_buttons()
     main_window.mainloop()
     # Add image file 
-    bg = PhotoImage(file = "Your_image.png") 
+    #bg = PhotoImage(file = "Your_image.png") 
   
     # Show image using label 
-    label1 = Label( main_window, image = bg) 
-    label1.place(x = 0, y = 0)
+    #label1 = Label( main_window, image = bg) 
+    #label1.place(x = 0, y = 0)
 
 # Create empty list for customer details and empty variable for entries in the list
 counters = {'total_entries': 1, 'name_count': 0}
