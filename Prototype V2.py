@@ -73,7 +73,7 @@ def delete_receipt():
     if 0 <= index < len(customer_details):  # Make sure that the index being deleted exists
         del customer_details[index]
         counters['total_entries'] -= 1
-        Label(main_window, text=counters['total_entries'], font=("Helvetica 10 bold")).grid(column=1, row=0)
+        Label(main_window, text=counters['total_entries'], font=("Helvetica 10 bold")).grid(column=1, row=2)
         delete_receipt_num.delete(0, 'end')
         # Print all the items in the list
         print_customer_details()
@@ -85,15 +85,15 @@ def setup_buttons():
     main_window.button_image_1 = PhotoImage(file="Images\Delete_Icon.png")
 
     # Create all the empty and default labels, buttons, and entry boxes. Put them in the correct grid location
-    Label(main_window, text="Receipt Number").grid(column=0, row=0, sticky=E, padx=5, pady=5)
-    Label(main_window, text="Customer Name").grid(column=0, row=1, sticky=E, padx=5, pady=5)
-    Label(main_window, text=counters['total_entries'], font=("Helvetica 10 bold")).grid(column=1, row=0)
-    Button(main_window, text="Quit", font=("Arial 9 bold"), command=quit, bg="crimson", fg="white", width=12).grid(column=3, row=0, sticky=EW, padx=5, pady=5)
+    Label(main_window, text="Receipt Number").grid(column=0, row=2, sticky=E, padx=5, pady=5)
+    Label(main_window, text="Customer Name").grid(column=0, row=3, sticky=E, padx=5, pady=5)
+    Label(main_window, text=counters['total_entries'], font=("Helvetica 10 bold")).grid(column=1, row=2)
+    Button(main_window, text="Quit", font=("Arial 9 bold"), command=quit, bg="crimson", fg="white", width=12).grid(column=3, row=2, sticky=EW, padx=5, pady=5)
     Button(main_window, text="Append Details", command=check_inputs, width=16).grid(column=1, row=4, sticky=EW, padx=5, pady=5)
     Button(main_window, text="Print Details", command=print_customer_details, width=16).grid(column=1, row=5, sticky=EW, padx=5, pady=5)
-    Label(main_window, text="Item Hired").grid(column=0, row=2, sticky=E, padx=5, pady=5)
-    Label(main_window, text="Amount Hired").grid(column=0, row=3, sticky=E, padx=5, pady=5)
-    Label(main_window, text="Receipt No.").grid(column=3, row=2, sticky=EW, padx=5, pady=5)
+    Label(main_window, text="Item Hired").grid(column=0, row=4, sticky=E, padx=5, pady=5)
+    Label(main_window, text="Amount Hired").grid(column=0, row=5, sticky=E, padx=5, pady=5)
+    Label(main_window, text="Receipt No.").grid(column=3, row=4, sticky=EW, padx=5, pady=5)
     
     # Create a frame for the image button
     img_frame = Frame(main_window)
