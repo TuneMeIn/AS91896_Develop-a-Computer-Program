@@ -141,6 +141,7 @@ counters = {'total_entries': 1, 'name_count': 0}
 customer_details = []
 main_window = Tk()
 main_window.title("Julie's Party Hire Store")
+main_window.resizable(False, False)  # Set the resizable property for height and width to False
 customer_name = Entry(main_window, width=23)
 customer_name.grid(column=1, row=2)
 item_hired = Entry(main_window, width=23)
