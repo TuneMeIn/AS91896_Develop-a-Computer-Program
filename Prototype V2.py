@@ -6,24 +6,27 @@ def quit():
 
 # Print details of all the customers
 def print_customer_details():
-    # Clear previous entries
-    for widget in main_window.grid_slaves():
-        if int(widget.grid_info()["row"]) > 8:  # Checks if the widget is in a row larger than 8, which is where customer details are displayed.
-            widget.grid_forget()  # Remove the widget from the grid by forgetting it
+    if len(customer_details) <= 0:
+        return  # Exit the function if the list is empty to avoid printing the headers without any list items
+    else:
+        # Clear previous entries
+        for widget in main_window.grid_slaves():
+            if int(widget.grid_info()["row"]) > 8:  # Checks if the widget is in a row larger than 8, which is where customer details are displayed.
+                widget.grid_forget()  # Remove the widget from the grid by forgetting it
 
-    # Create the column headings
-    Label(main_window, font=("Helvetica 10 bold"), text="Receipt No.").grid(column=0, row=8, padx=5, pady=5)
-    Label(main_window, font=("Helvetica 10 bold"), text="Customer Name").grid(column=1, row=8, padx=5, pady=5)
-    Label(main_window, font=("Helvetica 10 bold"), text="Item Hired").grid(column=2, row=8, padx=5, pady=5)
-    Label(main_window, font=("Helvetica 10 bold"), text="Amount Hired").grid(column=3, row=8, padx=5, pady=5)
+        # Create the column headings
+        Label(main_window, font=("Helvetica 10 bold"), text="Receipt No.").grid(column=0, row=8, padx=5, pady=5)
+        Label(main_window, font=("Helvetica 10 bold"), text="Customer Name").grid(column=1, row=8, padx=5, pady=5)
+        Label(main_window, font=("Helvetica 10 bold"), text="Item Hired").grid(column=2, row=8, padx=5, pady=5)
+        Label(main_window, font=("Helvetica 10 bold"), text="Amount Hired").grid(column=3, row=8, padx=5, pady=5)
 
-    # Add each item in the list into its own row
-    for index, details in enumerate(customer_details):
-        list_row = index + 9
-        Label(main_window, text=index + 1).grid(column=0, row=list_row, padx=5, pady=5)
-        Label(main_window, text=details[0]).grid(column=1, row=list_row, padx=5, pady=5)
-        Label(main_window, text=details[1]).grid(column=2, row=list_row, padx=5, pady=5)
-        Label(main_window, text=details[2]).grid(column=3, row=list_row, padx=5, pady=5)
+        # Add each item in the list into its own row
+        for index, details in enumerate(customer_details):
+            list_row = index + 9
+            Label(main_window, text=index + 1).grid(column=0, row=list_row, padx=5, pady=5)
+            Label(main_window, text=details[0]).grid(column=1, row=list_row, padx=5, pady=5)
+            Label(main_window, text=details[1]).grid(column=2, row=list_row, padx=5, pady=5)
+            Label(main_window, text=details[2]).grid(column=3, row=list_row, padx=5, pady=5)
 
 # Check the inputs are all valid
 def check_inputs():
@@ -31,7 +34,7 @@ def check_inputs():
     Label(main_window, text="                    ").grid(column=2, row=1)
     Label(main_window, text="                    ").grid(column=2, row=2)
     Label(main_window, text="                    ").grid(column=2, row=3)
-    Label(main_window, text="                    ").grid(column=2, row=4)
+    Label(main_window, text="                                       ").grid(column=2, row=4)
 
     # Check that name is not blank, set error text if blank
     if len(customer_name.get()) == 0:
@@ -75,8 +78,13 @@ def delete_receipt():
         counters['total_entries'] -= 1
         Label(main_window, text=counters['total_entries'], font=("Helvetica 10 bold")).grid(column=1, row=1)
         delete_receipt_num.delete(0, 'end')
-        # Print all the items in the list
-        print_customer_details()
+        if len(customer_details) <= 0: #Check if the list is empty so that if it is, the headers and list items will be deleted rather than just the list items
+            # Clear previous entries and headers
+            for widget in main_window.grid_slaves():
+                if int(widget.grid_info()["row"]) > 7:  # Checks if the widget is in a row larger than 7, which is where list headers and customer details are displayed
+                    widget.grid_forget()  # Remove the widget from the grid by forgetting it
+        else:
+            print_customer_details()
 
 # Add the background image
 def setup_bg(canvas):
