@@ -8,9 +8,26 @@ from tkinter import messagebox
 def quit():
     main_window.destroy()
 
+# Load customer details from JSON file
+def load_customer_details():
+        with open("customer_receipts.json", "rb") as file:
+            if os.path.getsize("customer_receipts.json") <= 18: #Check that the JSON file isn't below or equal to 4 bytes, indicating it has no data
+                return
+            else:
+                file.seek(0)
+                lis_customer_details.clear #Clear the list to prevent duplicate entries
+                data = json.load(file)
+                lis_customer_details.extend(data)
+
+# Save customer details to JSON file
+def save_customer_details():
+    with open("customer_receipts.json", "w") as file:
+        json.dump(customer_details, file, indent=4)
+
 # Print details of all the customers
 def print_customer_details():
-    if len(customer_details) <= 0:
+    load_customer_details()  # Load data from JSON before printing
+    if len(lis_customer_details) <= 0:
         return  # Exit the function if the list is empty to avoid printing the headers without any list items
     else:
         # Clear previous entries
@@ -25,7 +42,7 @@ def print_customer_details():
         Label(main_window, font=("Helvetica 10 bold"), text="Amount Hired", bg=main_window_bg_color, fg="white").grid(column=3, row=8, padx=5, pady=5)
 
         # Add each item in the list into its own row
-        for index, details in enumerate(customer_details):
+        for index, details in enumerate(lis_customer_details):
             list_row = index + 9
             Label(main_window, text=index + 1, bg=main_window_bg_color, fg="white").grid(column=0, row=list_row, padx=5, pady=5)
             Label(main_window, text=details[0], bg=main_window_bg_color, fg="white").grid(column=1, row=list_row, padx=5, pady=5)
@@ -38,10 +55,10 @@ def validate_inputs():
     Label(main_window, text="                                ", bg=main_window_bg_color).grid(column=2, row=2, sticky=W)
     Label(main_window, text="                                ", bg=main_window_bg_color).grid(column=2, row=3, sticky=W)
     Label(main_window, text="                                       ", bg=main_window_bg_color).grid(column=2, row=4, sticky=W)
-    Label(main_window, text="                                ", bg=main_window_bg_color).grid(column=2, row=4, sticky=E)
 
     # Check that name is not blank, set error text if blank
     if len(customer_name.get()) == 0:
+        messagebox.showwarning("Warning", "Entry box is empty or invalid")
         Label(main_window, text="Required", bg=main_window_bg_color, fg="red").grid(column=2, row=2, sticky=W)
         input_check = 1
 
@@ -65,17 +82,11 @@ def validate_inputs():
 
 # Add the next customer to the list
 def append_receipt():
-    name_info = customer_name.get()
-    hired_info = item_hired.get()
-    amount_info = amount_hired.get()
-    amount_info = str(amount_info)
-    file = open("customer_receipts.txt", "w")
-    file.write(name_info + "\n")
-    file.write(hired_info + "\n")
-    file.write(amount_info + "\n")
-    file.close
+
     # Append each item to its own area of the list
     customer_details.append([customer_name.get(), item_hired.get(), amount_hired.get()])
+    save_customer_details()  # Save data to JSON after appending
+
     # Clear the boxes
     customer_name.delete(0, "end")
     item_hired.delete(0, "end")
@@ -85,28 +96,20 @@ def append_receipt():
 
 # Delete a receipt from the list
 def delete_receipt():
-    # Check that name is not blank, set error text if blank
-    if len(delete_receipt_num.get()) == 0:
-        Label(main_window, text="                                ", bg=main_window_bg_color).grid(column=2, row=2, sticky=W)
-        Label(main_window, text="                                ", bg=main_window_bg_color).grid(column=2, row=3, sticky=W)
-        Label(main_window, text="                                       ", bg=main_window_bg_color).grid(column=2, row=4, sticky=W)
-        Label(main_window, text="Required", bg=main_window_bg_color, fg="red").grid(column=2, row=4, sticky=E)   
-    else:
-        Label(main_window, text="                                ", bg=main_window_bg_color).grid(column=2, row=4, sticky=E)
-        # Find which row is to be deleted and delete it
-        index = int(delete_receipt_num.get()) - 1
-        if 0 <= index < len(customer_details):  # Make sure that the index being deleted exists
-            del customer_details[index]
-            counter["total_entries"] -= 1
-            Label(main_window, text=counter["total_entries"], font=("Segoe UI", 10, "bold"), bg=main_window_bg_color, fg="white").grid(column=1, row=1)
-            delete_receipt_num.delete(0, "end")
-            if len(customer_details) <= 0:
-                # Clear previous entries
-                for widget in main_window.grid_slaves():
-                    if int(widget.grid_info()["row"]) > 7:  # Checks if the widget is in a row larger than 8, which is where customer details are displayed.
-                        widget.grid_forget()  # Remove the widget from the grid by forgetting it
-            else:
-                print_customer_details()
+    # Find which row is to be deleted and delete it
+    index = int(delete_receipt_num.get()) - 1
+    if 0 <= index < len(customer_details):  # Make sure that the index being deleted exists
+        del customer_details[index]
+        counter["total_entries"] -= 1
+        Label(main_window, text=counter["total_entries"], font=("Segoe UI", 10, "bold"), bg=main_window_bg_color, fg="white").grid(column=1, row=1)
+        delete_receipt_num.delete(0, "end")
+        if len(customer_details) <= 0:
+            # Clear previous entries
+            for widget in main_window.grid_slaves():
+                if int(widget.grid_info()["row"]) > 7:  # Checks if the widget is in a row larger than 8, which is where customer details are displayed.
+                    widget.grid_forget()  # Remove the widget from the grid by forgetting it
+        else:
+            print_customer_details()
 
 # Add the banner image
 def setup_bg(canvas):
@@ -242,7 +245,7 @@ def main():
 #Initialise the main window
 main_window = Tk()
 main_window.title("Julie's Party Hire Store")
-main_window.iconphoto(False, PhotoImage(file="Images/Pgm_Icon.png"))  # Set the title bar icon
+main_window.iconphoto(False, PhotoImage(file="Images/Pgm_Icon.png"))  # Set the title bar favicon
 main_window.resizable(False, False)  # Set the resizable property for height and width to False
 main_window_bg_color = "#B4B9DE"  # Set the background color of the main window
 main_window.configure(bg=main_window_bg_color)
@@ -250,6 +253,13 @@ main_window.configure(bg=main_window_bg_color)
 #Initialise total entries counter 
 counter = {"total_entries": 1}
 customer_details = []  # Create empty list for customer details and empty variable for entries in the list
+lis_customer_details = []  # Create an empty list for the customer data saved onto the JSON file
+
+# Define Tkinter StringVars
+customer_name = StringVar()
+item_hired = StringVar()
+amount_hired = StringVar()
+delete_receipt_num = StringVar()
 
 #Setup entry boxes
 customer_name = Entry(main_window, width=23, bg="#979BBA", fg="white")
