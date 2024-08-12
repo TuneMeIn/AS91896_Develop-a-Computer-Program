@@ -65,15 +65,6 @@ def validate_inputs():
 
 # Add the next customer to the list
 def append_receipt():
-    name_info = customer_name.get()
-    hired_info = item_hired.get()
-    amount_info = amount_hired.get()
-    amount_info = str(amount_info)
-    file = open("customer_receipts.txt", "w")
-    file.write(name_info + "\n")
-    file.write(hired_info + "\n")
-    file.write(amount_info + "\n")
-    file.close
     # Append each item to its own area of the list
     customer_details.append([customer_name.get(), item_hired.get(), amount_hired.get()])
     # Clear the boxes
@@ -111,10 +102,10 @@ def delete_receipt():
 # Add the banner image
 def setup_bg(canvas):
     # Add image file
-    global bg  # Keep a reference to the image object
+    global bg  # Keep a global reference to the background image ("bg" object)
     bg = PhotoImage(file="Images/Banner.png")
 
-    # Show image using label
+    # Show image using canvas
     canvas.create_image(0, 0, anchor=NW, image=bg)
 
 # Create the buttons and labels
