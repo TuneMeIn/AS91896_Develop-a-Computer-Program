@@ -8,8 +8,30 @@ from tkinter import messagebox
 def quit():
     main_window.destroy()
 
+# Load customer details from JSON file
+def load_customer_details():
+        global data_loaded, customer_details
+        with open("customer_receipts.json", "r") as file: # Open the .json file for reading (r) in binary mode (b)
+            if os.path.getsize("customer_receipts.json") <= 18: #Check that the JSON file isn't below or equal to 4 bytes, indicating it has no data
+                return
+            else:
+                customer_details.clear #Clear the list to prevent duplicate entries
+                customer_details = json.load(file)
+                data_loaded = True
+                counter["total_entries"] = len(customer_details) + 1
+
+# Save customer details to JSON file
+def save_customer_details():
+    global data_loaded
+    with open("customer_receipts.json", "w") as file:
+        json.dump(customer_details, file, indent=4)
+    data_loaded = False
+
 # Print details of all the customers
 def print_customer_details():
+    global printed_data, lis_customer_details
+    if not data_loaded:
+        load_customer_details()
     if len(customer_details) <= 0:
         return  # Exit the function if the list is empty to avoid printing the headers without any list items
     else:
@@ -19,7 +41,7 @@ def print_customer_details():
                 widget.grid_forget()  # Remove the widget from the grid by forgetting it
 
         # Create the column headings
-        Label(main_window, font=("Helvetica 10 bold"), text="Receipt No.", bg=main_window_bg_color, fg="white").grid(column=0, row=8, padx=5, pady=5)
+        Label(main_window, font=("Helvetica 10 bold"), text="Entry", bg=main_window_bg_color, fg="white").grid(column=0, row=8, padx=5, pady=5)
         Label(main_window, font=("Helvetica 10 bold"), text="First Name", bg=main_window_bg_color, fg="white").grid(column=1, row=8, padx=5, pady=5)
         Label(main_window, font=("Helvetica 10 bold"), text="Last Name", bg=main_window_bg_color, fg="white").grid(column=2, row=8, padx=5, pady=5)        
         Label(main_window, font=("Helvetica 10 bold"), text="Item Hired", bg=main_window_bg_color, fg="white").grid(column=3, row=8, padx=5, pady=5)
@@ -73,8 +95,11 @@ def validate_inputs():
 
 # Add the next customer to the list
 def append_receipt():
+
     # Append each item to its own area of the list
     customer_details.append([first_name.get(), last_name.get(), item_hired.get(), amount_hired.get()])
+    save_customer_details()  # Save data to JSON after appending
+
     # Clear the boxes
     first_name.delete(0, "end")
     last_name.delete(0, "end")
@@ -85,21 +110,25 @@ def append_receipt():
 
 # Delete a receipt from the list
 def delete_receipt():
-    # Check that name is not blank, set error text if blank
+    global data_loaded
+    # Check that name is not blank, set error text and clear the other entry boxes' error messages if blank 
     if len(delete_receipt_num.get()) == 0:
         Label(main_window, text="                                ", bg=main_window_bg_color).grid(column=2, row=2, sticky=W)
         Label(main_window, text="                                ", bg=main_window_bg_color).grid(column=2, row=3, sticky=W)
         Label(main_window, text="                                       ", bg=main_window_bg_color).grid(column=2, row=4, sticky=W)
-        Label(main_window, text="Required", bg=main_window_bg_color, fg="red").grid(column=2, row=4, sticky=E)   
+        Label(main_window, text="                                ", bg=main_window_bg_color).grid(column=2, row=5, sticky=W)
+        Label(main_window, text="Required", bg=main_window_bg_color, fg="red").grid(column=2, row=5, sticky=E)   
     else:
-        Label(main_window, text="                                ", bg=main_window_bg_color).grid(column=2, row=4, sticky=E)
+        Label(main_window, text="                                ", bg=main_window_bg_color).grid(column=2, row=5, sticky=E)
         # Find which row is to be deleted and delete it
         index = int(delete_receipt_num.get()) - 1
         if 0 <= index < len(customer_details):  # Make sure that the index being deleted exists
             del customer_details[index]
+            data_loaded = False
             counter["total_entries"] -= 1
             Label(main_window, text=counter["total_entries"], font=("Segoe UI", 10, "bold"), bg=main_window_bg_color, fg="white").grid(column=1, row=1)
             delete_receipt_num.delete(0, "end")
+            save_customer_details()
             if len(customer_details) <= 0:
                 # Clear previous entries
                 for widget in main_window.grid_slaves():
@@ -131,19 +160,19 @@ def setup_elements():
     main_window.btn_img4_clicked = PhotoImage(file="Images/Buttons/Print_Clicked.png")
 
     # Create the labels
-    Label(main_window, text="Receipt Number", bg=main_window_bg_color, font=("Segoe UI", 10, "bold"), fg="white").grid(column=0, row=1, sticky=E, padx=5, pady=5)    
+    Label(main_window, text="Entry Number", bg=main_window_bg_color, font=("Segoe UI", 10, "bold"), fg="white").grid(column=0, row=1, sticky=E, padx=5, pady=5)    
     Label(main_window, text="First Name", bg=main_window_bg_color, font=("Segoe UI", 10, "bold"), fg="white").grid(column=0, row=2, sticky=E, padx=5, pady=5)
     Label(main_window, text="Last Name", bg=main_window_bg_color, font=("Segoe UI", 10, "bold"), fg="white").grid(column=0, row=3, sticky=E, padx=5, pady=5)
     Label(main_window, text=counter["total_entries"], bg=main_window_bg_color, fg="white", font=("Segoe UI", 10, "bold")).grid(column=1, row=1)
     Label(main_window, text="Item Hired", bg=main_window_bg_color, font=("Segoe UI", 10, "bold"), fg="white").grid(column=0, row=4, sticky=E, padx=5, pady=5)
     Label(main_window, text="Amount Hired", bg=main_window_bg_color, font=("Segoe UI", 10, "bold"), fg="white").grid(column=0, row=5, sticky=E, padx=5, pady=5)
-    Label(main_window, text="Receipt No.", bg=main_window_bg_color, font=("Segoe UI", 10, "bold"), fg="white").grid(column=3, row=3, sticky=EW, padx=5, pady=5)
+    Label(main_window, text="Receipt No.", bg=main_window_bg_color, font=("Segoe UI", 10, "bold"), fg="white").grid(column=3, row=4, sticky=EW, padx=5, pady=5)
 
     # Create a frame for the image buttons
     img_frame1 = Frame(main_window, width=23, bg=main_window_bg_color)
     img_frame1.grid(column=3, row=1, sticky=EW, pady=5)
     img_frame2 = Frame(main_window, width=23, bg=main_window_bg_color)
-    img_frame2.grid(column=3, row=5, sticky=EW, pady=5)
+    img_frame2.grid(column=3, row=6, sticky=EW, pady=5)
     img_frame3 = Frame(main_window, width=23, bg=main_window_bg_color)
     img_frame3.grid(column=1, row=6, sticky=EW, pady=5)
     img_frame4 = Frame(main_window, width=23, bg=main_window_bg_color)
@@ -237,6 +266,7 @@ def main():
     setup_bg(canvas)
 
     # Start the GUI
+    load_customer_details()
     setup_elements()
     main_window.mainloop()
 
@@ -248,9 +278,10 @@ main_window.resizable(False, False)  # Set the resizable property for height and
 main_window_bg_color = "#B4B9DE"  # Set the background color of the main window
 main_window.configure(bg=main_window_bg_color)
 
-#Initialise total entries counter 
+#Initialise global lists and variables
 counter = {"total_entries": 1}
 customer_details = []  # Create empty list for customer details and empty variable for entries in the list
+data_loaded = False  # Flag to track if data is loaded
 
 #Setup entry boxes
 first_name = Entry(main_window, width=23, bg="#979BBA", fg="white")
@@ -266,7 +297,7 @@ amount_hired = Entry(main_window, width=23, bg="#979BBA", fg="white")
 amount_hired.grid(column=1, row=5)
 amount_hired.config(insertbackground="white")
 delete_receipt_num = Entry(main_window, width=23, bg="#979BBA", fg="white")
-delete_receipt_num.grid(column=3, row=4, padx=5, pady=5)
+delete_receipt_num.grid(column=3, row=5, padx=5, pady=5)
 delete_receipt_num.config(insertbackground="white")
 
 #Run the main function
