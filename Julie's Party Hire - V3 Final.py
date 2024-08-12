@@ -3,10 +3,13 @@ import json
 from tkinter import *
 from tkinter import ttk
 from tkinter import messagebox
+import random
+
 
 # Quit subroutine
 def quit():
     main_window.destroy()
+
 
 # Load customer details from JSON file
 def load_customer_details():
@@ -20,12 +23,14 @@ def load_customer_details():
                 data_loaded = True
                 counter["total_entries"] = len(customer_details) + 1
 
+
 # Save customer details to JSON file
 def save_customer_details():
     global data_loaded
     with open("customer_receipts.json", "w") as file:
         json.dump(customer_details, file, indent=4)
     data_loaded = False
+
 
 # Print details of all the customers
 def print_customer_details():
@@ -42,10 +47,11 @@ def print_customer_details():
 
         # Create the column headings
         Label(main_window, font=("Helvetica 10 bold"), text="Entry", bg=main_window_bg_color, fg="white").grid(column=0, row=8, padx=5, pady=5)
-        Label(main_window, font=("Helvetica 10 bold"), text="First Name", bg=main_window_bg_color, fg="white").grid(column=1, row=8, padx=5, pady=5)
-        Label(main_window, font=("Helvetica 10 bold"), text="Last Name", bg=main_window_bg_color, fg="white").grid(column=2, row=8, padx=5, pady=5)        
-        Label(main_window, font=("Helvetica 10 bold"), text="Item Hired", bg=main_window_bg_color, fg="white").grid(column=3, row=8, padx=5, pady=5)
-        Label(main_window, font=("Helvetica 10 bold"), text="Amount Hired", bg=main_window_bg_color, fg="white").grid(column=4, row=8, padx=5, pady=5)
+        Label(main_window, font=("Helvetica 10 bold"), text="Receipt No.", bg=main_window_bg_color, fg="white").grid(column=1, row=8, padx=5, pady=5)
+        Label(main_window, font=("Helvetica 10 bold"), text="First Name", bg=main_window_bg_color, fg="white").grid(column=2, row=8, padx=5, pady=5)
+        Label(main_window, font=("Helvetica 10 bold"), text="Last Name", bg=main_window_bg_color, fg="white").grid(column=3, row=8, padx=5, pady=5)        
+        Label(main_window, font=("Helvetica 10 bold"), text="Item Hired", bg=main_window_bg_color, fg="white").grid(column=4, row=8, padx=5, pady=5)
+        Label(main_window, font=("Helvetica 10 bold"), text="Amount Hired", bg=main_window_bg_color, fg="white").grid(column=5, row=8, padx=5, pady=5)
 
         # Add each item in the list into its own row
         for index, details in enumerate(customer_details):
@@ -55,6 +61,8 @@ def print_customer_details():
             Label(main_window, text=details[1], bg=main_window_bg_color, fg="white").grid(column=2, row=list_row, padx=5, pady=5)
             Label(main_window, text=details[2], bg=main_window_bg_color, fg="white").grid(column=3, row=list_row, padx=5, pady=5)
             Label(main_window, text=details[3], bg=main_window_bg_color, fg="white").grid(column=4, row=list_row, padx=5, pady=5)
+            Label(main_window, text=details[4], bg=main_window_bg_color, fg="white").grid(column=5, row=list_row, padx=5, pady=5)
+
 
 # Check the inputs are all valid
 def validate_inputs():
@@ -95,9 +103,15 @@ def validate_inputs():
 
 # Add the next customer to the list
 def append_receipt():
+    # Generate a random 4-digit receipt number
+    existing_receipt_numbers = [customer[0] for customer in customer_details] # Get the existing receipt numbers
+    while True:
+        receipt_number = random.randint(1000, 9999)
+        if receipt_number not in existing_receipt_numbers:  # Check that the generated receipt number doesn't already exist
+            break
 
     # Append each item to its own area of the list
-    customer_details.append([first_name.get(), last_name.get(), item_hired.get(), amount_hired.get()])
+    customer_details.append([receipt_number, first_name.get(), last_name.get(), item_hired.get(), amount_hired.get()])
     save_customer_details()  # Save data to JSON after appending
 
     # Clear the boxes
@@ -105,12 +119,16 @@ def append_receipt():
     last_name.delete(0, "end")
     item_hired.delete(0, "end")
     amount_hired.delete(0, "end")
+
+    # Update the entry counter
     counter["total_entries"] += 1
     Label(main_window, text=counter["total_entries"], font=("Segoe UI", 10, "bold"), bg=main_window_bg_color, fg="white").grid(column=1, row=1)
+
 
 # Delete a receipt from the list
 def delete_receipt():
     global data_loaded
+
     # Check that name is not blank, set error text and clear the other entry boxes' error messages if blank 
     if len(delete_receipt_num.get()) == 0:
         Label(main_window, text="                                ", bg=main_window_bg_color).grid(column=2, row=2, sticky=W)
@@ -120,22 +138,32 @@ def delete_receipt():
         Label(main_window, text="Required", bg=main_window_bg_color, fg="red").grid(column=2, row=5, sticky=E)   
     else:
         Label(main_window, text="                                ", bg=main_window_bg_color).grid(column=2, row=5, sticky=E)
-        # Find which row is to be deleted and delete it
-        index = int(delete_receipt_num.get()) - 1
-        if 0 <= index < len(customer_details):  # Make sure that the index being deleted exists
-            del customer_details[index]
-            data_loaded = False
-            counter["total_entries"] -= 1
-            Label(main_window, text=counter["total_entries"], font=("Segoe UI", 10, "bold"), bg=main_window_bg_color, fg="white").grid(column=1, row=1)
-            delete_receipt_num.delete(0, "end")
-            save_customer_details()
-            if len(customer_details) <= 0:
-                # Clear previous entries
-                for widget in main_window.grid_slaves():
-                    if int(widget.grid_info()["row"]) > 7:  # Checks if the widget is in a row larger than 8, which is where customer details are displayed.
-                        widget.grid_forget()  # Remove the widget from the grid by forgetting it
-            else:
-                print_customer_details()
+
+        # Convert the delete receipt number entry to an integer
+        receipt_num_to_delete = int(delete_receipt_num.get())
+
+        # Find the customer with the matching receipt number
+        customer_found = False
+        for i, customer in enumerate(customer_details):
+            if customer[0] == receipt_num_to_delete:  # Compare with the receipt number
+                del customer_details[i]
+                customer_found = True
+                data_loaded = False
+                counter["total_entries"] -= 1
+                Label(main_window, text=counter["total_entries"], font=("Segoe UI", 10, "bold"), bg=main_window_bg_color, fg="white").grid(column=1, row=1)
+                delete_receipt_num.delete(0, "end")
+                save_customer_details()
+                if len(customer_details) <= 0:
+                    # Clear previous entries
+                    for widget in main_window.grid_slaves():
+                        if int(widget.grid_info()["row"]) > 7:  # Checks if the widget is in a row larger than 8, which is where customer details are displayed.
+                            widget.grid_forget()  # Remove the widget from the grid by forgetting it
+                else:
+                    print_customer_details()
+                break
+        if not customer_found:
+            Label(main_window, text="Receipt not found", bg=main_window_bg_color, fg="red").grid(column=2, row=5, sticky=E)
+
 
 # Add the banner image
 def setup_bg(canvas):
@@ -145,6 +173,7 @@ def setup_bg(canvas):
 
     # Show image using label
     canvas.create_image(0, 0, anchor=NW, image=bg)
+
 
 # Create the buttons and labels
 def setup_elements():
@@ -255,6 +284,9 @@ def setup_elements():
     main_window.columnconfigure(1, weight=0, minsize=150)
     main_window.columnconfigure(2, weight=0, minsize=150)
     main_window.columnconfigure(3, weight=0, minsize=150)
+    main_window.columnconfigure(4, weight=0, minsize=150)
+    main_window.columnconfigure(5, weight=0, minsize=150)
+
 
 # Start the program
 def main():
@@ -269,6 +301,7 @@ def main():
     load_customer_details()
     setup_elements()
     main_window.mainloop()
+
 
 #Initialise the main window
 main_window = Tk()
