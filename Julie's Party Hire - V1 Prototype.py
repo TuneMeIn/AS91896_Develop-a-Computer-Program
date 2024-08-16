@@ -1,3 +1,7 @@
+# Date Created: 17/06/2024
+# Author: Jack Compton
+# Purpose: GUI application for Julie's party hire store to keep track of items that are currently hired
+
 from tkinter import *
 
 # Quit subroutine
