@@ -4,7 +4,7 @@ from tkinter import *
 from tkinter import ttk
 from tkinter import messagebox
 
-# Quit subroutine
+# Quit function
 def quit():
     main_window.destroy()
 
