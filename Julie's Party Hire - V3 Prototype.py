@@ -1,6 +1,6 @@
 # Date Created: 12/08/2024
 # Author: Jack Compton
-# Purpose: GUI application for Julie's party hire store to keep track of items that are currently hired
+# Purpose: GUI application for Julie's party hire store to keep track of currently hired items.
 
 import os
 import json
@@ -10,7 +10,7 @@ from tkinter import messagebox
 import random
 
 # Quit function
-def quit():
+def quit_program():
     main_window.destroy()
 
 
@@ -30,7 +30,7 @@ def update_receipt_combo():
 # Load customer details from .json file and update the receipt deletion combo box with the existing receipt numbers
 def load_customer_details():
         global data_loaded, customer_details
-        with open("customer_receipts.json", "r") as file:  # Open the .json file for reading (r) in binary mode (b)
+        with open("customer_receipts.json", "r") as file:  # Open the .json file for reading (r)
             if os.path.getsize("customer_receipts.json") <= 18:  # Check that the .json file isn't below or equal to 18 bytes, indicating that it has no complete list data
                 return
             else:
@@ -100,107 +100,150 @@ def print_customer_details():
             Label(main_window, text=details[4], bg=main_window_bg_color, fg="white").grid(column=5, row=list_row, padx=5, pady=5)
 
 
-# Check the inputs are all valid
-def validate_inputs():
-    error_detected_check = 0
+# Check that the entry box entries are all valid
+def validate_customer_details():
+    details_error_detected = False
     error_messages = []  # List to store error messages
+    entry_clear = []     # List to store entry boxes that need to be cleared
 
     # Clear any previous error messages
     Label(main_window, text="                                ", bg=main_window_bg_color).grid(column=2, row=2, sticky=W)
     Label(main_window, text="                                ", bg=main_window_bg_color).grid(column=2, row=3, sticky=W)
-    Label(main_window, text="                                ", bg=main_window_bg_color).grid(column=2, row=4, sticky=E)
     Label(main_window, text="                                       ", bg=main_window_bg_color).grid(column=2, row=4, sticky=W)
     Label(main_window, text="                                ", bg=main_window_bg_color).grid(column=2, row=5, sticky=W)
     Label(main_window, text="                                ", bg=main_window_bg_color).grid(column=2, row=5, sticky=E)
 
+    # First Name error control
     # Check if the "first_name" entry is blank
     if first_name.get().strip() == "":
         Label(main_window, text="Required", bg=main_window_bg_color, fg="red").grid(column=2, row=2, sticky=W)
-        error_messages.append("First Name is required and cannot be left blank")
-        first_name.delete(0, "end")  # Clear the first_name entry box
-        error_detected_check = 1
+        error_messages.append("First Name is required and cannot be left blank.")
+        details_error_detected = True
 
     # Check if the "first_name" entry is above 50 characters long
-    elif len(first_name.get().strip()) > 50:
+    elif len(first_name.get().strip().replace(" ", "")) > 50:
         Label(main_window, text="Invalid Entry", bg=main_window_bg_color, fg="red").grid(column=2, row=2, sticky=W)
-        error_messages.append("First Name cannot be longer than 50 characters")
-        first_name.delete(0, "end")  # Clear the first_name entry box
-        error_detected_check = 1        
+        error_messages.append("First Name cannot be longer than 50 characters.")
+        entry_clear.append(first_name)  # Allow the entry to be cleared after closing the warning box by placing it in a list till the end of the function
+        details_error_detected = True        
 
     # Check if the "first_name" entry only contains digits
-    elif first_name.get().isdigit():
+    elif first_name.get().strip().replace(" ", "").isdigit():
         Label(main_window, text="Invalid Entry", bg=main_window_bg_color, fg="red").grid(column=2, row=2, sticky=W)
-        error_messages.append("First Name cannot only contain numbers.\n     - Please include at least one letter")
-        first_name.delete(0, "end")  # Clear the first_name entry box
-        error_detected_check = 1
+        error_messages.append("First Name cannot only contain numbers.\n     - Please include at least one letter.")
+        entry_clear.append(first_name)  # Allow the entry to be cleared after closing the warning box by placing it in a list till the end of the function
+        details_error_detected = True
 
-    # Check if "first_name" contains a combination of letters and numbers as well as at least one letter.
+    # Check if "first_name" entry contains a combination of letters and numbers as well as at least one letter.
     else:
-        if not (first_name.get().replace(" ", "").isalnum() and any(char.isalpha() for char in first_name.get())):
+        if not (first_name.get().strip().replace(" ", "").isalnum() and any(char.isalpha() for char in first_name.get())):
             Label(main_window, text="Invalid Entry", bg=main_window_bg_color, fg="red").grid(column=2, row=2, sticky=W)
             error_messages.append("First Name can only include letters or letters with numbers.\n     - No symbols or non-alphanumeric characters.")
-            first_name.delete(0, "end")  # Clear the first_name entry box
-            error_detected_check = 1
+            entry_clear.append(first_name)  # Allow the entry to be cleared after closing the warning box by placing it in a list till the end of the function
+            details_error_detected = True
 
+    # Last Name error control
     # Check if the "last_name" entry is blank
     if last_name.get().strip() == "":
         Label(main_window, text="Required", bg=main_window_bg_color, fg="red").grid(column=2, row=3, sticky=W)
-        error_messages.append("Last Name is required and cannot be left blank")
-        last_name.delete(0, "end")  # Clear the last_name entry box
-        error_detected_check = 1
+        error_messages.append("Last Name is required and cannot be left blank.")
+        details_error_detected = True
 
     # Check if the "last_name" entry is above 50 characters long
-    elif len(last_name.get().strip()) > 50:
+    elif len(last_name.get().strip().replace(" ", "")) > 50:
         Label(main_window, text="Invalid Entry", bg=main_window_bg_color, fg="red").grid(column=2, row=3, sticky=W)
-        error_messages.append("Last Name cannot be longer than 50 characters")
-        last_name.delete(0, "end")  # Clear the last_name entry box
-        error_detected_check = 1
+        error_messages.append("Last Name cannot be longer than 50 characters.")
+        entry_clear.append(last_name)  # Allow the entry to be cleared after closing the warning box by placing it in a list till the end of the function
+        details_error_detected = True
 
     # Check if the "last_name" entry only contains digits
-    elif last_name.get().isdigit():
+    elif last_name.get().strip().replace(" ", "").isdigit():
         Label(main_window, text="Invalid Entry", bg=main_window_bg_color, fg="red").grid(column=2, row=3, sticky=W)
-        error_messages.append("Last Name cannot only contain numbers.\n     - Please include at least one letter")
-        last_name.delete(0, "end")  # Clear the last_name entry box
-        error_detected_check = 1
+        error_messages.append("Last Name cannot only contain numbers.\n     - Please include at least one letter.")
+        entry_clear.append(last_name)  # Allow the entry to be cleared after closing the warning box by placing it in a list till the end of the function
+        details_error_detected = True
 
     # Check if "last_name" contains a combination of letters and numbers as well as at least one letter.
     else:
-        if not (last_name.get().replace(" ", "").isalnum() and any(char.isalpha() for char in last_name.get())):
+        if not (last_name.get().strip().replace(" ", "").isalnum() and any(char.isalpha() for char in last_name.get())):
             Label(main_window, text="Invalid Entry", bg=main_window_bg_color, fg="red").grid(column=2, row=3, sticky=W)
             error_messages.append("Last Name can only include letters or letters with numbers.\n     - No symbols or non-alphanumeric characters.")
-            last_name.delete(0, "end")  # Clear the last_name entry box
-            error_detected_check = 1
+            entry_clear.append(last_name)  # Allow the entry to be cleared after closing the warning box by placing it in a list till the end of the function
+            details_error_detected = True
 
-    # Check the item hired is not blank, set error text if blank
+    # Item Hired error control
+    # Check if the "item_hired" entry is blank
     if len(item_hired.get()) == 0:
         Label(main_window, text="Required", bg=main_window_bg_color, fg="red").grid(column=2, row=4, sticky=W)
-        error_messages.append("Item Hired is required")
-        item_hired.delete(0, "end")
-        error_detected_check = 1
+        error_messages.append("Item Hired is required and cannot be left blank.")
+        details_error_detected = True
 
-    # Check that the amount hired is not blank and above 0, set error text if blank or 0 and below
-    if len(amount_hired.get()) == 0:
+    # Amount Hired error control
+    # Check if the "amount_hired" entry is blank
+    if amount_hired.get().strip() == "":
         Label(main_window, text="Required", bg=main_window_bg_color, fg="red").grid(column=2, row=5, sticky=W)
-        error_messages.append("Amount Hired is required")
-        amount_hired.delete(0, "end")
-        error_detected_check = 1
-    elif amount_hired.get().isdigit():
-        if int(amount_hired.get()) <= 0 or int(amount_hired.get()) > 500:
+        error_messages.append("Amount Hired is required and cannot be left blank.")
+        details_error_detected = True
+
+    # Check if the "amount_hired" entry contains any alphabetic characters.
+    elif any(char.isalpha() for char in amount_hired.get().strip().replace(" ", "")):
+            Label(main_window, text="Invalid Entry", bg=main_window_bg_color, fg="red").grid(column=2, row=5, sticky=W)
+            error_messages.append("Amount Hired must only include numbers, no letters.")
+            entry_clear.append(amount_hired)  # Allow the entry to be cleared after closing the warning box by placing it in a list till the end of the function
+            details_error_detected = True
+    
+    # Check if the "amount_hired" entry is a negative number (starting with a minus sign) and has at least one numeric value after it.
+    elif amount_hired.get().strip().replace(" ", "").startswith("-") and any(char.isnumeric() for char in amount_hired.get()):
             Label(main_window, text="Between 1-500", bg=main_window_bg_color, fg="red").grid(column=2, row=5, sticky=W)
-            error_messages.append("Amount Hired must be between 1 and 500")
-            amount_hired.delete(0, "end")
-            error_detected_check = 1
+            error_messages.append("Amount Hired must be a positive number between 1 and 500.")
+            entry_clear.append(amount_hired)  # Allow the entry to be cleared after closing the warning box by placing it in a list till the end of the function
+            details_error_detected = True
+
+    # Check if the "amount_hired" entry only contains digits and if so, whether the value is below/equal to zero or above 500.
+    elif amount_hired.get().strip().replace(" ", "").isdigit():
+        if int(amount_hired.get().replace(" ", "")) <= 0 or int(amount_hired.get().replace(" ", "")) > 500:
+            Label(main_window, text="Between 1-500", bg=main_window_bg_color, fg="red").grid(column=2, row=5, sticky=W)
+            error_messages.append("Amount Hired must be between 1 and 500.")
+            entry_clear.append(amount_hired)  # Allow the entry to be cleared after closing the warning box by placing it in a list till the end of the function
+            details_error_detected = True
     else:
-        error_messages.append("Amount Hired must be a number")
-        amount_hired.delete(0, "end")
-        error_detected_check = 1
+        try:
+            # Check if the "amount_hired" entry is a decimal number.
+            amount_float = float(amount_hired.get().strip().replace(" ", ""))   # Convert "amount_hired" to a float and store the value in "amount_float".
+            amount_int = int(amount_float)                                      # Convert "amount_float" to an integer and store the value in "amount_int".
+
+            # Check if the float and integer are not equal, meaning the entry would be a decimal. Otherwise check if ".0" is in the entry, also suggesting a decimal.
+            if amount_float != amount_int or ".0" in amount_hired.get() and amount_float == amount_int: 
+                Label(main_window, text="Invalid Entry", bg=main_window_bg_color, fg="red").grid(column=2, row=5, sticky=W)
+                error_messages.append("Amount Hired cannot be a decimal.\n     - Must be an integer between 1 and 500.")
+                entry_clear.append(amount_hired)  # Allow the entry to be cleared after closing the warning box by placing it in a list till the end of the function
+                details_error_detected = True
+            
+            # Check if the "amount_hired" entry doesn't only consist of digits
+            elif not amount_hired.get().strip().replace(" ", "").isdigit():
+                Label(main_window, text="Invalid Entry", bg=main_window_bg_color, fg="red").grid(column=2, row=5, sticky=W)
+                error_messages.append("Amount Hired must only include numbers.\n     - Cannot include symbols or non-numeric characters.")
+                entry_clear.append(amount_hired)  # Allow the entry to be cleared after closing the warning box by placing it in a list till the end of the function
+                details_error_detected = True
+
+        except ValueError:
+            Label(main_window, text="Invalid Entry", bg=main_window_bg_color, fg="red").grid(column=2, row=5, sticky=W)
+            error_messages.append("Amount Hired must only include numbers.\n     - Cannot include symbols or non-numeric characters.")
+            entry_clear.append()
+            entry_clear.append(amount_hired)  # Allow the entry to be cleared after closing the warning box by placing it in a list till the end of the function
+            details_error_detected = True
 
     # If there are any invalid inputs, show a message box with all errors
-    if error_detected_check == 1:
+    if details_error_detected == True:
         ordered_errors = [f"{i + 1}. {error_messages[i]}" for i in range(len(error_messages))]  # Create an ordered list version of the errors to display in the warning message box
         messagebox.showwarning("Invalid Entries", "\n".join(ordered_errors))
+        
+        # Clear the invalid entries after the user closes the message box
+        for entry in entry_clear:
+            entry.delete(0, "end")
     else:
         submit_receipt()
+
 
 # Add the next customer to the list
 def submit_receipt():
@@ -211,7 +254,8 @@ def submit_receipt():
         if receipt_number not in existing_receipt_numbers:  # Check that the generated receipt number doesn't already exist
             break
 
-    # Remove any leading and trailing spaces from the "first_name" and "last_name" entries.
+    # Remove any leading and trailing spaces from the "amount_hired", "first_name", and "last_name" entries, as well as any spaces in between characters in "amount_hired".
+    stripped_amounthired = amount_hired.get().strip().replace(" ", "")
     stripped_firstname = first_name.get().strip()
     stripped_lastname = last_name.get().strip()
 
@@ -220,17 +264,17 @@ def submit_receipt():
     lname_words = stripped_lastname.split()
 
     # Capitalise the first letter of all words in the "first_name" and "last_name" entries while joining the listed words for both entries and adding a space between them.
-    formatted_firstname = " ".join(fn_word.capitalize() for fn_word in fname_words)
-    formatted_lastname = " ".join(ln_word.capitalize() for ln_word in lname_words)
+    formatted_firstname = " ".join(fname_word.capitalize() for fname_word in fname_words)
+    formatted_lastname = " ".join(lname_word.capitalize() for lname_word in lname_words)
 
     # Append each item to its own area of the list
-    customer_details.append([receipt_number, formatted_firstname, formatted_lastname, item_hired.get(), amount_hired.get()])
+    customer_details.append([receipt_number, formatted_firstname, formatted_lastname, item_hired.get(), stripped_amounthired])
     save_customer_details()  # Save data to .json file after appending
 
-    # Clear the entry boxes
+    # Clear the input boxes
     first_name.delete(0, "end")
     last_name.delete(0, "end")
-    item_hired.delete(0, "end")
+    item_hired.set("")
     amount_hired.delete(0, "end")
 
     # Update the entry counter
@@ -241,45 +285,108 @@ def submit_receipt():
     update_receipt_combo()
 
 
+# Check that the receipt deletion combo box entry is valid
+def validate_receipt_deletion():
+    receipt_error_detected = False
+
+    # Clear any previous error messages
+    Label(main_window, text="                                ", bg=main_window_bg_color).grid(column=2, row=2, sticky=W)
+    Label(main_window, text="                                ", bg=main_window_bg_color).grid(column=2, row=3, sticky=W)
+    Label(main_window, text="                                       ", bg=main_window_bg_color).grid(column=2, row=4, sticky=W)
+    Label(main_window, text="                                ", bg=main_window_bg_color).grid(column=2, row=5, sticky=W)
+    Label(main_window, text="                                ", bg=main_window_bg_color).grid(column=2, row=5, sticky=E)
+
+    # Check if the "delete_receipt_num" entry is blank
+    if delete_receipt_num.get().strip() == "":
+        Label(main_window, text="Required", bg=main_window_bg_color, fg="red").grid(column=2, row=5, sticky=E)
+        messagebox.showwarning("Invalid Entry", "Receipt Number is required and cannot be left blank.")
+        delete_receipt_num.delete(0, "end")  # Clear the delete_receipt_num entry box
+        receipt_error_detected = True
+
+    # Check if the "delete_receipt_num" entry contains any alphabetic characters and doesn't only consist of digits
+    elif any(char.isalpha() for char in delete_receipt_num.get().strip().replace(" ", "")) and not delete_receipt_num.get().strip().replace(" ", "").isdigit():
+        Label(main_window, text="Invalid Entry", bg=main_window_bg_color, fg="red").grid(column=2, row=5, sticky=E)
+        messagebox.showwarning("Invalid Entry", "Receipt Number must only include numbers.\nPlease don't use letters or symbols/non-numeric characters.")
+        delete_receipt_num.delete(0, "end")  # Clear the delete_receipt_num entry box
+        receipt_error_detected = True
+
+    # Check if the "delete_receipt_num" entry is a negative number (starting with a minus sign) and has at least one numeric value after it.
+    elif delete_receipt_num.get().strip().replace(" ", "").startswith("-") and any(char.isnumeric() for char in delete_receipt_num.get()):
+            Label(main_window, text="Invalid Entry", bg=main_window_bg_color, fg="red").grid(column=2, row=5, sticky=E)
+            messagebox.showwarning("Invalid Entry", "Receipt Number can only be a positive number.")
+            delete_receipt_num.delete(0, "end")  # Clear the delete_receipt_num entry box
+            receipt_error_detected = True
+
+    # Check if the "delete_receipt_num" entry only contains digits and if so, whether the total number of digits is below or above 4.
+    elif delete_receipt_num.get().strip().replace(" ", "").isdigit():
+        if len(delete_receipt_num.get().strip().replace(" ", "")) < 4 or len(delete_receipt_num.get().strip().replace(" ", "")) > 4:
+            Label(main_window, text="Invalid Entry", bg=main_window_bg_color, fg="red").grid(column=2, row=5, sticky=E)
+            messagebox.showwarning("Invalid Entry","Receipt Number must only be 4 digits long.")
+            delete_receipt_num.delete(0, "end")  # Clear the delete_receipt_num entry box
+            receipt_error_detected = True
+
+    else:
+        try:
+            # Check if the "delete_receipt_num" entry is a decimal number.
+            receipt_num_float = float(delete_receipt_num.get().strip().replace(" ", ""))  # Convert "delete_receipt_num" to a float and store the value in "receipt_num_float".
+            receipt_num_int = int(receipt_num_float)                                      # Convert "receipt_num_float" to an integer and store the value in "receipt_num_int".
+
+            # Check if the float and integer are not equal, meaning the input would be a decimal. Otherwise check if ".0" is in the entry, also suggesting a decimal.
+            if receipt_num_float != receipt_num_int or ".0" in delete_receipt_num.get() and receipt_num_float == receipt_num_int: 
+                Label(main_window, text="Invalid Entry", bg=main_window_bg_color, fg="red").grid(column=2, row=5, sticky=E)
+                messagebox.showwarning("Invalid Entry", "Receipt Number cannot be a decimal and must\nbe an existing receipt number/integer.")
+                delete_receipt_num.delete(0, "end")  # Clear the delete_receipt_num entry box
+                receipt_error_detected = True
+            
+            # Check if the "delete_receipt_num" entry doesn't only consist of digits
+            elif not delete_receipt_num.get().strip().replace(" ", "").isdigit():
+                Label(main_window, text="Invalid Entry", bg=main_window_bg_color, fg="red").grid(column=2, row=5, sticky=E)
+                messagebox.showwarning("Invalid Entry", "Receipt Number must only include numbers.\nPlease don't use symbols/non-numeric characters.")
+                delete_receipt_num.delete(0, "end")  # Clear the delete_receipt_num entry box
+                receipt_error_detected = True 
+
+        except ValueError:
+            Label(main_window, text="Invalid Entry", bg=main_window_bg_color, fg="red").grid(column=2, row=5, sticky=E)
+            messagebox.showwarning("Invalid Entry", "Receipt Number must only include numbers.\nPlease don't use symbols/non-numeric characters.")
+            delete_receipt_num.delete(0, "end")  # Clear the delete_receipt_num entry box
+            receipt_error_detected = True
+
+    # If there is an invalid input, show a message box with the related error message
+    if receipt_error_detected == True:
+        return
+    else:
+        delete_receipt()
+
+
 # Delete a receipt from the list
 def delete_receipt():
     global data_loaded
 
-    # Check that the receipt deletion entry is not blank. Set error text and clear the other entry boxes' error messages if blank.
-    if len(delete_receipt_num.get()) == 0:
-        Label(main_window, text="                                ", bg=main_window_bg_color).grid(column=2, row=2, sticky=W)
-        Label(main_window, text="                                ", bg=main_window_bg_color).grid(column=2, row=3, sticky=W)
-        Label(main_window, text="                                       ", bg=main_window_bg_color).grid(column=2, row=4, sticky=W)
-        Label(main_window, text="                                ", bg=main_window_bg_color).grid(column=2, row=5, sticky=W)
-        Label(main_window, text="Required", bg=main_window_bg_color, fg="red").grid(column=2, row=5, sticky=E)   
-    else:
-        Label(main_window, text="                                ", bg=main_window_bg_color).grid(column=2, row=5, sticky=E)
+    # Remove any leading, in-between, and trailing spaces from the "delete_receipt_num" variable entry.
+    stripped_receiptnum = int(delete_receipt_num.get().strip().replace(" ", ""))
 
-        # Convert the delete receipt number entry to an integer
-        receipt_num_to_delete = int(delete_receipt_num.get())
-
-        # Find the customer with the matching receipt number
-        customer_found = False
-        for i, customer in enumerate(customer_details):
-            if customer[0] == receipt_num_to_delete:  # Compare with the receipt number
-                del customer_details[i]
-                customer_found = True
-                data_loaded = False  # Set the data_loaded variable to false, so program will reload data from .json file when printing
-                counter["entry_number"] -= 1
-                Label(main_window, text=counter["entry_number"], font=("Segoe UI", 10, "bold"), bg=main_window_bg_color, fg="white").grid(column=1, row=1)
-                delete_receipt_num.delete(0, "end")
-                save_customer_details()
-                update_receipt_combo()
-                if len(customer_details) <= 0:
-                    # Clear previous entries
-                    for widget in main_window.grid_slaves():
-                        if int(widget.grid_info()["row"]) > 7:  # Checks if the widget is in a row larger than 8, which is where customer details are displayed.
-                            widget.grid_forget()  # Remove the widget from the grid by forgetting it
-                else:
-                    print_customer_details()
-                break
-        if not customer_found:
-            Label(main_window, text="Receipt not found", bg=main_window_bg_color, fg="red").grid(column=2, row=5, sticky=E)
+    # Find the customer with the matching receipt number
+    customer_found = False
+    for i, customer in enumerate(customer_details):
+        if customer[0] == stripped_receiptnum:  # Compare with the receipt number
+            del customer_details[i]
+            customer_found = True
+            data_loaded = False  # Set the data_loaded variable to false, so program will reload data from .json file when printing
+            counter["entry_number"] -= 1
+            Label(main_window, text=counter["entry_number"], font=("Segoe UI", 10, "bold"), bg=main_window_bg_color, fg="white").grid(column=1, row=1)
+            delete_receipt_num.delete(0, "end")
+            save_customer_details()
+            update_receipt_combo()
+            if len(customer_details) <= 0:
+                # Clear previous entries
+                for widget in main_window.grid_slaves():
+                    if int(widget.grid_info()["row"]) > 7:  # Checks if the widget is in a row larger than 8, which is where customer details are displayed.
+                        widget.grid_forget()  # Remove the widget from the grid by forgetting it
+            else:
+                print_customer_details()
+            break
+    if not customer_found:
+        Label(main_window, text="Receipt not found", bg=main_window_bg_color, fg="red").grid(column=2, row=5, sticky=E)
 
 
 # Add the banner image
@@ -364,7 +471,7 @@ def setup_elements():
     img_button1.pack(fill="x")  # Pack the exit button to fill the horizontal space of its container
 
     # Delete Receipt Button
-    img_button2 = Button(img_frame2, command=lambda: handle_button_click(delete_receipt), width=140, image=main_window.btn_img2_normal,
+    img_button2 = Button(img_frame2, command=lambda: handle_button_click(validate_receipt_deletion), width=140, image=main_window.btn_img2_normal,
                         bg=main_window_bg_color, fg="white", font=("Helvetica 10 bold"), borderwidth=0, compound="center", relief="flat",
                         activebackground=main_window_bg_color, activeforeground=main_window_bg_color)
     img_button2.image = main_window.btn_img2_normal  # Store the image reference to prevent garbage collection from causing it to disappear
@@ -375,7 +482,7 @@ def setup_elements():
     img_button2.pack(fill="x")  # Pack the delete button to fill the horizontal space of its container
 
     # Submit Details Button
-    img_button3 = Button(img_frame3, command=lambda: handle_button_click(validate_inputs), width=140, image=main_window.btn_img3_normal,
+    img_button3 = Button(img_frame3, command=lambda: handle_button_click(validate_customer_details), width=140, image=main_window.btn_img3_normal,
                         bg=main_window_bg_color, fg="white", borderwidth=0, compound="center", relief="flat",
                         activebackground=main_window_bg_color, activeforeground=main_window_bg_color)
     img_button3.image = main_window.btn_img3_normal  # Store the image reference to prevent garbage collection from causing it to disappear
