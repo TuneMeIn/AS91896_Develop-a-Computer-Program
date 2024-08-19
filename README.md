@@ -1,2 +1,2 @@
 # AS91896_Develop-a-Computer-Program
-This project will look at developing a computer program that solves a certain problem.
+This project is a GUI application for Julie's party hire store to keep track of currently hired items.
