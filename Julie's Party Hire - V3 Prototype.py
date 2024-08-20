@@ -51,7 +51,6 @@ def save_customer_details():
 
 # Print details of all the customers
 def print_customer_details():
-    global printed_data, lis_customer_details
     if not data_loaded:
         load_customer_details()  # Reload the "customer_details" list from the .json file if not up-to-date, so there are no conflicting items
     if len(customer_details) <= 0:
