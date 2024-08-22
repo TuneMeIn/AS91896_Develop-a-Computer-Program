@@ -102,7 +102,7 @@ def setup_buttons():
     # Create a frame for the image button
     img_frame = Frame(main_window)
     img_frame.grid(column=3, row=4, sticky=EW, padx=5, pady=5)
-    Img_Button = Button(img_frame, text="Delete Receipt", command=delete_receipt, width=80, image=main_window.button_image_1)
+    Img_Button = Button(img_frame, text="Delete Receipt", command=delete_receipt, width=60, image=main_window.button_image_1)
     Img_Button.pack()
 
     Label(main_window, text="               ").grid(column=2, row=0)
